@@ -1,21 +1,14 @@
 <?php
-
 /**
- * The plugin bootstrap file
- *
- * This file is read by WordPress to generate the plugin information in the plugin
- * admin area. This file also includes all of the dependencies used by the plugin,
- * registers the activation and deactivation functions, and defines a function
- * that starts the plugin.
  *
  * @link              http://mustdigital.ru
  * @since             1.0.0
  * @package           Wp_Email_Templates
  *
  * @wordpress-plugin
- * Plugin Name:       Email Templates
+ * Plugin Name:       WP Email Templates
  * Plugin URI:        https://github.com/MUSTdigital/wp-email-templates
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
+ * Description:       This is very simple plugin, that adds to wordprss email templating system functionality. Developed for developers. Built on top of Mustache.
  * Version:           1.0.0
  * Author:            MUSTdigital
  * Author URI:        http://mustdigital.ru
@@ -30,46 +23,24 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-/**
- * The code that runs during plugin activation.
- * This action is documented in includes/class-wp-email-templates-activator.php
- */
-function activate_wp_email_templates() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-email-templates-activator.php';
-	Wp_Email_Templates_Activator::activate();
+// Mustache
+if (!class_exists('Mustache_Autoloader')) {
+    require('Mustache/Autoloader.php');
+    Mustache_Autoloader::register();
 }
 
-/**
- * The code that runs during plugin deactivation.
- * This action is documented in includes/class-wp-email-templates-deactivator.php
- */
-function deactivate_wp_email_templates() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-email-templates-deactivator.php';
-	Wp_Email_Templates_Deactivator::deactivate();
+// Custom post type md_etemplate
+function md_wpet_register_post_types() {
+	include_once 'email-post-type/etemplate.php';
 }
+add_action( 'init', 'md_wpet_register_post_types', 0 );
+include_once 'email-post-type/meta_fields.php';
 
-register_activation_hook( __FILE__, 'activate_wp_email_templates' );
-register_deactivation_hook( __FILE__, 'deactivate_wp_email_templates' );
-
-/**
- * The core plugin class that is used to define internationalization,
- * admin-specific hooks, and public-facing site hooks.
- */
-require plugin_dir_path( __FILE__ ) . 'includes/class-wp-email-templates.php';
-
-/**
- * Begins execution of the plugin.
- *
- * Since everything within the plugin is registered via hooks,
- * then kicking off the plugin from this point in the file does
- * not affect the page life cycle.
- *
- * @since    1.0.0
- */
-function run_wp_email_templates() {
-
-	$plugin = new Wp_Email_Templates();
-	$plugin->run();
-
+// Settings
+if ( ! class_exists('WordPress_SimpleSettings') ) {
+	require('inc/wordpress-simple-settings.php');
 }
-run_wp_email_templates();
+require_once 'main/class-settings.php';
+
+require_once 'main/functions.php';
+require_once 'main/class-email.php';
